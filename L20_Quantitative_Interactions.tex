@@ -1,0 +1,420 @@
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{ifthen}
+\usepackage[normalem]{ulem}
+\geometry{margin=2cm}
+
+% ============================================================================
+% ANSWER KEY TOGGLE
+% Set to true to show answers, false to hide them
+% ============================================================================
+\newboolean{showanswers}
+\setboolean{showanswers}{false}  % <-- CHANGE TO true FOR ANSWER KEY
+
+% Define rhodamine color (bright pink/magenta)
+\definecolor{rhodamine}{RGB}{227, 38, 131}
+
+% Answer command: shows answer in rhodamine if showanswers is true
+% Prints in white when off - preserves EXACT layout including line wraps
+\newcommand{\ans}[1]{%
+    \ifthenelse{\boolean{showanswers}}%
+        {\textcolor{rhodamine}{\textbf{#1}}}%
+        {\textcolor{white}{\textbf{#1}}}%
+}
+
+% Answer with line: shows answer or blank line
+\newcommand{\ansline}[2][3cm]{%
+    \ifthenelse{\boolean{showanswers}}%
+        {\textcolor{rhodamine}{\textbf{#2}}}%
+        {\underline{\hspace{#1}}}%
+}
+% ============================================================================
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+    pdftitle={MA376 Lesson 20 Boardsheet},
+    pdfpagemode=FullScreen,
+}
+
+\setlength{\headheight}{10pt}
+
+\newtcolorbox{frameworkbox}{
+    colback=gray!10,
+    colframe=black,
+    boxrule=1pt,
+    arc=3pt,
+    left=6pt,
+    right=6pt,
+    top=6pt,
+    bottom=6pt
+}
+
+\begin{document}
+
+% ============================================================================
+% HEADER BLOCK
+% ============================================================================
+\noindent
+\begin{minipage}[t]{0.075\textwidth}
+    \vspace{0pt}
+    \includegraphics[width=1.6cm]{figures/Math_Mule.png}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.9\textwidth}
+    \vspace{0pt}
+    \begin{tabular}{p{0.55\textwidth} p{0.4\textwidth}}
+        \textbf{\Large MA376} & \hfill AY26-2 \\
+        Applied Statistics & \hfill Lesson 20 \\
+        Lesson 20: Quantitative Interactions & \hfill Cadet: \underline{\hspace{2cm}}
+    \end{tabular}
+\end{minipage}
+
+\vspace{1em}
+\hrule
+
+% ============================================================================
+% LESSON OBJECTIVES
+% ============================================================================
+\section*{Lesson Objectives}
+\begin{enumerate}
+    \item Consider design issues with quantitative explanatory variables.
+    \item \textbf{Describe interactions between quantitative variables.}
+    \item \textbf{Visualize relationships among three or more quantitative variables.}
+    \item Interpret a response surface.
+    \item Produce a 3D scatter plot in R.
+\end{enumerate}
+
+\hrule
+
+% ============================================================================
+% CRAWL: Tufte Visualization Principles
+% ============================================================================
+\section*{CRAWL: Visualization Principles}
+
+\noindent
+Edward Tufte's core ideas for effective statistical graphics. These apply to every plot you make today.
+
+\vspace{0.3cm}
+
+\begin{frameworkbox}
+\textbf{Five Principles for Clear Visualizations}
+
+\begin{enumerate}[nosep]
+    \item \textbf{Data-ink ratio.} Maximize the share of ink devoted to actual data. Remove gridlines, borders, and redundant labels that add nothing.
+    \item \textbf{No chartjunk.} 3D effects, gradient fills, and decorative elements distort perception. Flat, clean plots win.
+    \item \textbf{Label directly.} Place text next to data instead of using a separate legend. Reduces eye travel.
+    \item \textbf{Small multiples.} Use faceted panels to compare groups on a common scale. The eye compares positions faster than colors.
+    \item \textbf{Show the data.} Plot raw points. Do not hide observations behind a summary statistic.
+\end{enumerate}
+\end{frameworkbox}
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{Quick application:} Name one thing you would change about this R default.
+
+\begin{verbatim}
+plot(x, y, main = "My Graph!!", col = "red",
+     pch = 19, cex = 2, bty = "o")
+\end{verbatim}
+
+\ans{Remove the loud title (or make it descriptive). Remove the bounding box (\texttt{bty = "n"}). Consider whether red is the best color choice. Add axis labels with units.}
+
+\hrule
+
+% ============================================================================
+% WALK: Board Predictions with an Interaction Model
+% ============================================================================
+\newpage
+\section*{WALK: Board Predictions --- What Does an Interaction Do?}
+
+\noindent
+A fitness researcher models push-up count as a function of sleep and warm-up time. The fitted model is:
+
+$$\hat{y} = 20 + 4 \cdot \text{Sleep} + 0.3 \cdot \text{Warmup} + 0.2 \cdot \text{Sleep} \times \text{Warmup}$$
+
+where Sleep is in hours and Warmup is in minutes.
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{At the board, compute $\hat{y}$ for each combination.}
+
+\begingroup
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{2.2}
+\begin{table}[ht]
+\centering
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{Sleep (hrs)} & \textbf{Warmup (min)} & \textbf{Calculation} & $\hat{y}$ \\ \hline
+    6 & 5 & \ans{$20 + 24 + 1.5 + 6 = 51.5$} & \ans{51.5} \\ \hline
+    8 & 5 & \ans{$20 + 32 + 1.5 + 8 = 61.5$} & \ans{61.5} \\ \hline
+    6 & 15 & \ans{$20 + 24 + 4.5 + 18 = 66.5$} & \ans{66.5} \\ \hline
+    8 & 15 & \ans{$20 + 32 + 4.5 + 24 = 80.5$} & \ans{80.5} \\ \hline
+\end{tabular}
+\end{table}
+\endgroup
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{Now answer these questions using your predictions.}
+
+\begin{enumerate}
+    \item What is the effect of going from 6 to 8 hours of sleep when Warmup = 5?
+
+    \ans{$61.5 - 51.5 = 10.0$ more push-ups.}
+    \vspace{0.8cm}
+
+    \item What is the effect of going from 6 to 8 hours of sleep when Warmup = 15?
+
+    \ans{$80.5 - 66.5 = 14.0$ more push-ups.}
+    \vspace{0.8cm}
+
+    \item The effect of sleep \textit{changed} depending on warm-up level. Why?
+
+    \ans{The interaction term ($0.2 \cdot \text{Sleep} \times \text{Warmup}$) means the slope for sleep depends on the value of warmup. When warmup is higher, the benefit of additional sleep is amplified. The effective slope of Sleep is $4 + 0.2 \cdot \text{Warmup}$.}
+    \vspace{0.8cm}
+
+    \item Write the effective slope of Sleep as a function of Warmup:
+
+    \vspace{0.2cm}
+    $\dfrac{\partial \hat{y}}{\partial \text{Sleep}} = $ \ansline[5cm]{$4 + 0.2 \cdot \text{Warmup}$}
+\end{enumerate}
+
+% ============================================================================
+% WALK/RUN: Response Surfaces and Quant x Quant Interactions
+% ============================================================================
+\newpage
+\section*{Response Surfaces and Quantitative Interactions}
+
+\noindent
+When both explanatory variables are quantitative, the model defines a \textbf{response surface} in 3D.
+
+\vspace{0.3cm}
+
+\begin{frameworkbox}
+\textbf{Additive model:} $\hat{y} = \beta_0 + \beta_1 x_1 + \beta_2 x_2$
+
+The response surface is a \textit{flat plane}. The effect of $x_1$ is the same at every level of $x_2$.
+
+\vspace{0.3cm}
+
+\textbf{Interaction model:} $\hat{y} = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 x_2$
+
+The response surface is a \textit{twisted plane}. The effect of $x_1$ depends on $x_2$.
+\end{frameworkbox}
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{Spotting the interaction in 2D.} Hold one variable at a few fixed values. Plot the other variable on the x-axis and $\hat{y}$ on the y-axis. If the lines are parallel, there is no interaction. If they are not parallel, an interaction is present.
+
+\vspace{0.5cm}
+
+\noindent
+\textbf{Sketch:} Using the push-up model, draw $\hat{y}$ vs. Sleep for Warmup $= 5$ and Warmup $= 15$.
+
+\vspace{3.5cm}
+
+\ans{Two lines with the same intercept structure but different slopes. The Warmup=15 line is steeper (slope = $4 + 0.2(15) = 7$) than the Warmup=5 line (slope = $4 + 0.2(5) = 5$). Non-parallel lines confirm the interaction.}
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{Testing the interaction.} Use a partial F-test to compare nested models:
+
+\begin{verbatim}
+additive <- lm(y ~ x1 + x2, data = df)
+interaction <- lm(y ~ x1 * x2, data = df)
+anova(additive, interaction)
+\end{verbatim}
+
+\noindent
+$H_0\!: \beta_3 = 0$ (additive model is sufficient) vs. $H_a\!: \beta_3 \neq 0$ (interaction improves the model).
+
+\vspace{0.3cm}
+
+\noindent
+This is the same partial F-test from Lesson 19. The only difference is that the ``added predictor'' is a product of two quantitative variables.
+
+% ============================================================================
+% RUN: Production Line Competition
+% ============================================================================
+\newpage
+\section*{RUN: Production Line Competition}
+
+\noindent
+A factory has 8 production lines. Management collected data on 6 process variables and measured weekly unplanned downtime (hours). Each line has different equipment and operating conditions, so the key factors differ across lines.
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{Variables (all datasets):}
+
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{table}[ht]
+\centering
+\begin{tabularx}{0.95\textwidth}{|l|X|l|}
+    \hline
+    \textbf{Variable} & \textbf{Description} & \textbf{Range} \\ \hline
+    \texttt{Temp\_C} & Process temperature (${}^\circ$C) & 50--200 \\ \hline
+    \texttt{Pressure\_psi} & Chamber pressure (psi) & 10--80 \\ \hline
+    \texttt{Speed\_uph} & Line speed (units/hr) & 50--300 \\ \hline
+    \texttt{Humidity\_pct} & Ambient humidity (\%) & 20--80 \\ \hline
+    \texttt{Material\_Score} & Raw material quality (1--10) & 1--10 \\ \hline
+    \texttt{Cycle\_Time\_min} & Production cycle time (min) & 5--60 \\ \hline
+    \texttt{Downtime\_hrs} & \textbf{Response:} unplanned downtime (hrs/wk) & continuous \\ \hline
+\end{tabularx}
+\end{table}
+\endgroup
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{Your Line Assignment:}
+
+\begingroup
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{table}[ht]
+\centering
+\begin{tabularx}{0.95\textwidth}{|c|l|X|}
+    \hline
+    \textbf{Group} & \textbf{Line} & \textbf{Engineer's Note} \\ \hline
+    1 & Alpha & Older seals may degrade under combined thermal and pressure stress \\ \hline
+    2 & Bravo & High-speed runs seem to jam more in humid conditions \\ \hline
+    3 & Charlie & Cheaper materials tend to fail on longer production cycles \\ \hline
+    4 & Delta & Overheating may worsen at higher throughput \\ \hline
+    5 & Echo & Sustained pressure over long cycles may cause fatigue failures \\ \hline
+    6 & Foxtrot & Low-grade materials seem to absorb moisture and warp \\ \hline
+    7 & Golf & Fast short cycles cause different stress patterns than fast long ones \\ \hline
+    8 & Hotel & Heat combined with humidity accelerates corrosion on older frames \\ \hline
+\end{tabularx}
+\end{table}
+\endgroup
+
+\newpage
+
+\noindent
+\textbf{Competition Rules:}
+
+\begin{enumerate}
+    \item Download your line's CSV from GitHub.
+    \item Explore the data. Fit models. Find the best one.
+    \item \textbf{Email the instructor before class ends} with:
+    \begin{itemize}
+        \item Your fitted model equation
+        \item One table of your choosing (summary stats, ANOVA table, model comparison, etc.)
+        \item Up to two visualizations (apply today's Tufte principles!)
+    \end{itemize}
+    \item A random \textit{other pair} will receive your submission and explain your model and visualizations to the class.
+    \item \textbf{Scoring:} The best explanation wins. If the model and visualizations are clear enough that someone else can explain them well, all four people (the builders and the explainers) earn a bonus point.
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\begin{frameworkbox}
+\textbf{Strategy tips:}
+\begin{itemize}[nosep]
+    \item Start with a pairs plot (\texttt{GGally::ggpairs()}) to see which variables correlate with downtime.
+    \item Read the engineer's note. It is a hint.
+    \item Try an additive model first. Then add the interaction you suspect. Use \texttt{anova()} to compare.
+    \item Your visualizations should make your model's story obvious to a stranger. Label axes. Use color with purpose.
+\end{itemize}
+\end{frameworkbox}
+
+\vspace{0.5cm}
+
+\noindent
+\textbf{Your line:} \underline{\hspace{3cm}} \qquad \textbf{Partner:} \underline{\hspace{3cm}}
+
+\vspace{0.3cm}
+
+\noindent
+\textbf{Workspace --- notes, model equation, key findings:}
+
+\vspace{8cm}
+
+% ============================================================================
+% KEY TAKEAWAYS
+% ============================================================================
+\hrule
+\vspace{0.3cm}
+
+\section*{Key Takeaways}
+\begin{enumerate}
+    \item A quantitative interaction means the effect of one predictor depends on the level of another.
+    \item The response surface for an additive model is a flat plane. Adding an interaction twists that plane.
+    \item Non-parallel lines in a 2D slice plot indicate an interaction.
+    \item The partial F-test from Lesson 19 is how we test whether the interaction term improves the model.
+    \item Clear visualizations make your model's story accessible to others.
+    \item \textbf{Next lesson:} What if the relationship is not linear? Polynomial models and data transformations.
+\end{enumerate}
+
+% ============================================================================
+% DAILY CHALLENGE
+% ============================================================================
+\newpage
+\section*{Daily Challenge}
+
+\noindent
+\textit{Complete before the next lesson. This previews Lesson 21 (Nonlinear Associations).}
+
+\vspace{0.5cm}
+
+\noindent
+\textbf{Challenge (Hybrid):}
+
+\vspace{0.3cm}
+
+\noindent
+A researcher fits a linear model and gets this residual plot:
+
+\vspace{0.3cm}
+
+\begin{center}
+\textit{[Imagine: residuals vs. fitted values showing a clear U-shaped (quadratic) pattern]}
+\end{center}
+
+\vspace{0.3cm}
+
+\begin{enumerate}
+    \item What does a U-shaped residual pattern suggest about the model?
+
+    \ans{The relationship between the predictor and response is not linear. The model is missing curvature. A linear model systematically over-predicts in the middle and under-predicts at the extremes (or vice versa).}
+    \vspace{1.5cm}
+
+    \item Name two things you could try to fix this. (Hint: we have not covered these yet. Think creatively.)
+
+    \ans{(1) Add a squared term ($x^2$) to capture the curvature (polynomial regression). (2) Transform the response variable (log, square root) to make the relationship more linear.}
+    \vspace{1.5cm}
+
+    \item In R, if your predictor is \texttt{x}, write the formula for a model that includes both \texttt{x} and $\texttt{x}^2$.
+
+    \ans{\texttt{lm(y \textasciitilde{} x + I(x\^{}2), data = df)}}
+    \vspace{1cm}
+\end{enumerate}
+
+\vspace{0.5cm}
+\noindent
+\textbf{What to submit:} Written answers to all 3 questions.
+
+\end{document}
