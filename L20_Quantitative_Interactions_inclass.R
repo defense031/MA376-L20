@@ -23,7 +23,11 @@ library(GGally)
 # Replace "alpha" with your assigned line:
 #   alpha | bravo | charlie | delta | echo | foxtrot | golf | hotel
 
-my_line <- read_csv("data/line_alpha.csv")
+my_line_name <- "alpha"  # <-- CHANGE THIS
+
+url <- paste0("https://raw.githubusercontent.com/defense031/MA376-L20/master/data/line_",
+              my_line_name, ".csv")
+my_line <- read_csv(url)
 head(my_line)
 
 # ==============================================================================
